@@ -38,7 +38,7 @@ const router = express.Router();
 router
   .route("/")
 
-  .get(toolControllers.getAllTool)
+  .get(viewCount, toolControllers.getAllTool)
   .post(toolControllers.saveTool);
 
 router

@@ -8,12 +8,12 @@ const toolRoutes = require("./utils/routes/v1/tool.route");
 const usersRoutes = require("./utils/routes/v1/users.route");
 const errorHandler = require("./middleware/errorHandler");
 
-app.use(cors());
+app.use(cors()); 
 app.use(express.json());
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 // app.use(cors({origin: 'https://x-computer-manufacture.web.app/'})
-app.use(viewCount)
+// app.use(viewCount)
 
 // Apply the rate limiting middleware to all requests
 // app.use(limiter)
@@ -24,7 +24,7 @@ app.use("/api/v1/tool", toolRoutes);
 app.use("/api/v1/users", usersRoutes);
 app.get("/", (req, res) => {
   // res.send("Hello World!");
-  // res.sendFile(__dirname + "/public/test.html");
+  // res.sendFile(__dirname + "/public/test.html");b
   res.render("home.ejs", {
     id: 2,
     user: {
@@ -49,3 +49,4 @@ app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
   console.log("dbConnected");
 });
+  

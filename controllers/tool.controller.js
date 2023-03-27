@@ -2,17 +2,20 @@ const { Logger } = require("mongodb");
 const errorHandler = require("../middleware/errorHandler");
 
 let tools = [
-  { id: 1, name: "Hammder" },
-  { id: 2, name: "Hammder2" },
-  { id: 3, name: "Hammder3" },
+  { id: 1, name: "Hammer" },
+  { id: 2, name: "Hammer2" },
+  { id: 3, name: "Hammer3" },
 ];
 
 module.exports.getAllTool = (req, res) => {
   try {
+    // http://localhost:5000/api/v1/tool?limit=10&page=3
     // const { limit, page } = req.query;
     // console.log(limit, page);
+    // http://localhost:5000/api/v1/tool?limit=1&page=2
     // res.send(tools.slice(0, limit));
-
+    // res.download(__dirname+"/tool.controller.js");
+    // res.redirect('/login');
     res.status(200).send({
       status: "Success",
       message: "You got data",
