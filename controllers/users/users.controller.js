@@ -7,6 +7,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const User = db.user;
 
+// User signup .............................................
 module.exports.signup = async (req, res) => {
   try {
     const {
@@ -58,7 +59,6 @@ module.exports.signup = async (req, res) => {
         password,
         role: "user",
       });
-      // console.log("User", newuser);
       res.status(200).send({
         status: "success",
         message: "Acoount create successfully",
@@ -82,13 +82,16 @@ module.exports.signup = async (req, res) => {
 
 
 
-
+// Get ALl User ...........................................
 module.exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll();
     
     if (!users || users.length === 0) {
-      return res.status(404).send("No users found");
+      return res.status(404).send({
+        status: "fail",
+        message: "User not found"
+      });
     }
 
     const userData = users.map(user => ({
@@ -113,18 +116,19 @@ module.exports.getAllUsers = async (req, res) => {
   }
 };
 
-
+// Get Single User ...................................
 module.exports.getSingleUser = async (req, res) => {
   try {
     const { id } = req.params;
-    // const users = req.body;
-    // console.log(req.body);
     const user = await User.findOne({
       where: { id: id },
     });
 
     if (!user) {
-      return res.status(400).send("User not found");
+      return res.status(400).send({
+        status: "fail",
+        message: "User not found"
+      });
     }
     res.status(200).send({
       status: "success",
@@ -157,6 +161,8 @@ module.exports.getSingleUser = async (req, res) => {
  * 8. generate token
  * 9. send user and token
  */
+
+// User login .............................................
 module.exports.login = async (req, res, next) => {
   try {
     // console.log(req.body);
@@ -164,14 +170,20 @@ module.exports.login = async (req, res, next) => {
     // console.log(User_Email, pass_word);
 
     if (!email || !password) {
-      return res.status(400).send("Please provide your credentials");
+      return res.status(400).send({
+        status: "fail",
+        message: "Please provide your credentials"
+      });
     }
 
     const user = await User.findOne({ where: { email: email } });
     if (!user) {
       return res
         .status(400)
-        .send("No user found. Please create an account first");
+        .send({
+          status: "fail",
+          message: "No user found.Please create an account first"
+        });
     }
 
     const isPasswordValid = bcrypt.compareSync(password, user.password);
@@ -180,7 +192,10 @@ module.exports.login = async (req, res, next) => {
     // console.log("isPasswordValid", isPasswordValid);
 
     if (!isPasswordValid) {
-      return res.status(400).send("Password or email is not correct");
+      return res.status(400).send({
+        status: "fail",
+        message: "Your password is not correct"
+      });
     }
 
     // if (user.status != "active") {
@@ -212,38 +227,86 @@ module.exports.login = async (req, res, next) => {
   } catch (error) {
     ErrorLogger.error(error.message);
     next(error.message);
-
-    // res.status(500).json({
-    //   status: "fail",
-    //   message: "Username or password is not curret",
-    //   error: error.message,
-    // });
   }
 };
 
 
-// User role information update
-module.exports.update_user = async (req, res) => {
-  // console.log('update_user', req.body);
+
+// User information update ....................................
+module.exports.updateUser = async (req, res) => {
   try {
+    // console.log(req.body);
     const { id } = req.params;
-    if (!id) {
-      return res.send('Id not found')
-    }
-    const result = await User.update(req.body, { where: { id: id } })
-    if (!result) {
-      return res.send('Result not found')
-    }
+    // console.log("updateInfo", req.body);
+    const {
+      first_name,
+      last_name,  
+      email, 
+      password,
+      role
+    } = req.body;
+
+    const result = await User.update({
+      first_name,
+      last_name,  
+      email, 
+      password,
+      role
+    }, {
+      where: { id: id },
+    });
+
     res.status(200).send({
-      status: "Success",
-      message: "Successfully role update",
-      data: result
-    })
+      status: "success",
+      message: "Successfully updated",
+      // data: result,
+    });
   } catch (error) {
     res.status(400).send({
       status: "fail",
-      message: "Not update role",
-      error: error.message
-    })
+      message: "Couldn't update User information",
+      error: error.message,
+    });
+    ErrorLogger.error("updateUserInformation" + " " + error.message);
+  }
+};
+
+
+// User delete ....................................
+module.exports.deleteUser = async (req, res) => {
+  try {
+      const { id } = req.params;
+      if (!id) {
+          return res.send({
+            status: "fail",
+            message: "Id not found",
+          })
+
+      }
+      const result = await User.destroy({ where: { id: id } })
+
+      if (!result) {
+          return res.send({
+            status: "fail",
+            message: "Result not found",
+          })
+
+      }
+
+      res.status(200).send({
+          status: "success",
+          message: "Successfully User information delete",
+          // data: result
+      })
+  } catch (error) {
+
+      res.status(400).send({
+          status: "fail",
+          message: "No User found",
+          error: error.message
+      })
   }
 }
+
+
+
