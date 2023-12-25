@@ -235,42 +235,47 @@ module.exports.login = async (req, res, next) => {
 // User information update ....................................
 module.exports.updateUser = async (req, res) => {
   try {
-    // console.log(req.body);
     const { id } = req.params;
-    // console.log("updateInfo", req.body);
-    const {
-      first_name,
-      last_name,  
-      email, 
-      password,
-      role
-    } = req.body;
+    const { first_name, last_name, email, password, role } = req.body;
 
-    const result = await User.update({
-      first_name,
-      last_name,  
-      email, 
-      password,
-      role
-    }, {
-      where: { id: id },
-    });
+    // Validate required fields
+    if (!first_name || !email) {
+      return res.status(400).json({
+        status: "fail",
+        message: "First Name and Email are required fields",
+      });
+    }
 
-    res.status(200).send({
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Update user with hashed password
+    const result = await User.update(
+      {
+        first_name,
+        last_name,
+        email,
+        password: hashedPassword,
+        role,
+      },
+      {
+        where: { id: id },
+      }
+    );
+
+    res.status(200).json({
       status: "success",
-      message: "Successfully updated",
-      // data: result,
+      message: "User information successfully updated",
     });
   } catch (error) {
-    res.status(400).send({
+    res.status(500).json({
       status: "fail",
-      message: "Couldn't update User information",
+      message: "Failed to update user information",
       error: error.message,
     });
     ErrorLogger.error("updateUserInformation" + " " + error.message);
   }
 };
-
 
 // User delete ....................................
 module.exports.deleteUser = async (req, res) => {
